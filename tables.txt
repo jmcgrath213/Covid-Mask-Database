@@ -1,0 +1,116 @@
+1.
+state = '''
+CREATE TABLE State
+(
+    StateName VARCHAR(40) NOT NULL PRIMARY KEY ,
+    Population INTEGER,
+    PopulationDensity REAL,
+    isDeleted INTEGER DEFAULT 0
+);
+'''
+
+cursor.execute(state)
+db.commit()
+
+
+2.
+countyState = '''
+CREATE TABLE countystate
+(
+    CountyId INTEGER NOT NULL PRIMARY KEY,
+    County VARCHAR(40) NOT NULL,
+    State VARCHAR(40) NOT NULL,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(State) REFERENCES state(StateName)
+);
+'''
+
+cursor.execute(countyState)
+db.commit()
+
+
+3.
+maskuse = '''
+CREATE TABLE maskuse
+(
+    CountyId INTEGER NOT NULL,
+    Never REAL,
+    Rarely REAL,
+    Sometimes REAL,
+    Frequently REAL,
+    Always REAL,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+);
+'''
+
+cursor.execute(maskuse)
+db.commit()
+
+
+4.
+countycases = '''
+CREATE TABLE countycases
+(
+    CountyId INTEGER NOT NULL,
+    Cases INTEGER,
+    ConfirmedCases INTEGER,
+    ProbableCases INTEGER,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+);
+'''
+
+cursor.execute(countycases)
+db.commit()
+
+
+5.
+countydeaths = '''
+CREATE TABLE countydeaths
+(
+    CountyId INTEGER NOT NULL,
+    Deaths INTEGER,
+    ConfirmedDeaths INTEGER,
+    ProbableDeaths INTEGER,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+);
+'''
+cursor.execute(countydeaths)
+db.commit()
+
+
+6.
+statecases = '''
+CREATE TABLE statecases
+(
+    State VARCHAR(40) NOT NULL,
+    Cases INTEGER,
+    ConfirmedCases INTEGER,
+    ProbableCases INTEGER,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(State) REFERENCES state(StateName)
+);
+'''
+
+cursor.execute(statecases)
+db.commit()
+
+
+
+7.
+statedeaths = '''
+CREATE TABLE statedeaths
+(
+    State VARCHAR(40) NOT NULL,
+    Deaths INTEGER,
+    ConfirmedDeaths INTEGER,
+    ProbableDeaths INTEGER,
+    isDeleted INTEGER DEFAULT 0,
+    FOREIGN KEY(State) REFERENCES state(StateName)
+);
+'''
+
+cursor.execute(statedeaths)
+db.commit()
