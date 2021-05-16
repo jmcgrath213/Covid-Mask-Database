@@ -141,25 +141,25 @@ cursor = db.cursor()
 # cursor.execute(statedeaths)
 # db.commit()
 #
-# table1 = p.read_csv('state.csv')
+# table1 = p.read_csv('../csv/state.csv')
 # table1.to_sql(name='state', con=engine, if_exists='append', index=False)
 #
-# table2 = p.read_csv('countystate.csv')
+# table2 = p.read_csv('../csv/countystate.csv')
 # table2.to_sql(name='countystate', con=engine, if_exists='append', index=False)
 #
-# table3 = p.read_csv('maskuse.csv')
+# table3 = p.read_csv('../csv/maskuse.csv')
 # table3.to_sql(name='maskuse', con=engine, if_exists='append', index=False)
 #
-# table4 = p.read_csv('countycases.csv')
+# table4 = p.read_csv('../csv/countycases.csv')
 # table4.to_sql(name='countycases', con=engine, if_exists='append', index=False)
 #
-# table5 = p.read_csv('countydeaths.csv')
+# table5 = p.read_csv('../csv/countydeaths.csv')
 # table5.to_sql(name='countydeaths', con=engine, if_exists='append', index=False)
 #
-# table6 = p.read_csv('statecases.csv')
+# table6 = p.read_csv('../csv/statecases.csv')
 # table6.to_sql(name='statecases', con=engine, if_exists='append', index=False)
 #
-# table7 = p.read_csv('statedeaths.csv')
+# table7 = p.read_csv('../csv/statedeaths.csv')
 # table7.to_sql(name='statedeaths', con=engine, if_exists='append', index=False)
 
 
