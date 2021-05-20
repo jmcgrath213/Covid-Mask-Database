@@ -212,6 +212,42 @@ def getAllStateDeaths():
     print(frame)
 
 
+def returnFullTable():
+    print("\nEnter which table you would like to print out:")
+    print("(1) State Table\n"
+          "(2) State Cases Table\n"
+          "(3) State Deaths Table\n"
+          "(4) County-State Table\n"
+          "(5) County Cases Table\n"
+          "(6) County Deaths Table\n"
+          "(7) Mask Use Table\n")
+    case = int(input("Enter the number you wish to navigate to: "))
+
+    if case == 1:
+        getAllState()
+
+    elif case == 2:
+        getAllStateCases()
+
+    elif case == 3:
+        getAllStateDeaths()
+
+    elif case == 4:
+        getAllCountyState()
+
+    elif case == 5:
+        getAllCountyCases()
+
+    elif case == 6:
+        getAllCountyDeaths()
+
+    elif case == 7:
+        getAllMaskUse()
+
+    else:
+        print("\nInvalid input. Exiting back to main application")
+
+
 def deleteCounty():
     countyId = input("To delete County please enter their County ID: ")
     cursor.execute("UPDATE countystate SET isDeleted = 1 WHERE CountyId = '" + countyId + "';")
@@ -405,18 +441,123 @@ def getCountyCases():
             addQuickReference(county, state, cId)
 
 
+def getCountyDeaths():
+    search = input("\nDo you know the CountyID for the county you want to search(y/n): ")
+    if search == "y":
+        countyId = input("Please enter the countyId: ")
+
+        cursor.execute("SELECT County FROM countystate WHERE CountyId = '" + countyId + "';")
+        county = cursor.fetchall()
+
+        cursor.execute("SELECT State FROM countystate WHERE CountyId = '" + countyId + "';")
+        state = cursor.fetchall()
+
+        c = cleanOutput(county)
+        s = cleanOutput(state)
+
+        cursor.execute("SELECT deaths FROM countycases WHERE CountyId = '" + countyId + "';")
+        deaths = cursor.fetchall()
+
+        cleanDeaths = cleanOutput(deaths)
+
+        print("\nCovid Deaths for " + c + " County, " + s + ": ")
+        print(cleanDeaths)
+
+    else:
+        county = input("\nWhich county would you like to search: ")
+        state = input("What state is the county in: ")
+        cursor.execute("SELECT CountyId from countyState WHERE County = '" + county + "' and State = '" + state + "';")
+        countyId = cursor.fetchall()
+        cId = cleanOutput(countyId)
+
+        cursor.execute("SELECT deaths FROM countycases WHERE CountyId = '" + cId + "';")
+        deaths = cursor.fetchall()
+
+        cleanDeaths = cleanOutput(deaths)
+
+        print("\nCovid Deaths for " + county + " County, " + state + ": ")
+        print(cleanDeaths)
+
+        print("\nCountyId for " + county + " County, " + state + " is " + cId)
+        quick = input("Would you like to add this to your Quick Reference Table(y/n): ")
+        if quick == "y":
+            addQuickReference(county, state, cId)
+
+
+def getStateCases():
+    state = input("\nWhich state would you like to search: ")
+    cursor.execute("SELECT * from state WHERE StateName = '" + state + "';")
+    if cursor.fetchall():
+        cursor.execute("SELECT cases from statecases WHERE State = '" + state + "';")
+        cases = cursor.fetchall()
+        cleanCases = cleanOutput(cases)
+
+        print("\nCovid Cases for " + state + ": ")
+        print(cleanCases)
+    else:
+        print("State does not exist. Please enter valid State")
+        getStateCases()
+
+
+def getStateDeaths():
+    state = input("Which state would you like to search: ")
+    cursor.execute("SELECT * from state WHERE StateName = '" + state + "';")
+    if cursor.fetchall():
+        cursor.execute("SELECT deaths from statedeaths WHERE State = '" + state + "';")
+        deaths = cursor.fetchall()
+        cleanDeaths = cleanOutput(deaths)
+
+        print("\nCovid Deaths for " + state + ": ")
+        print(cleanDeaths)
+    else:
+        print("State does not exist. Please enter valid State")
+        getStateDeaths()
+
+
+def addCounty():
+    newCounty = input("\nEnter the name of the county you would like to add: ")
+    cState = input("What state is the county in: ")
+    cursor.execute("SELECT * from state WHERE StateName = '" + cState + "';")
+    if cursor.fetchall():
+        cursor.execute("SELECT CountyId from countyState WHERE County = '" + newCounty + "' and State = '" + cState + "';")
+        countyId = cursor.fetchall()
+        if cleanOutput(countyId) == "":
+            cursor.execute("SELECT CountyId from countyState WHERE CountyId = (SELECT max(CountyId) FROM countyState);")
+            inId = cursor.fetchall()
+            cleanId = cleanOutput(inId)
+            newId = str(int(cleanId) + 2)
+
+            cursor.execute("INSERT INTO countystate (CountyId, County, State) VALUES ('" + newId + "', '" + newCounty + "', '" + cState + "');")
+            db.commit()
+
+            print("\nNew county: " + newCounty + " County, " + cState + " has been added to countystate Table")
+            print("County ID for " + newCounty + " County, " + cState + " is " + newId)
+            quick = input("\nWould you like to add this to your Quick Reference Table(y/n): ")
+            if quick == "y":
+                addQuickReference(newCounty, cState, newId)
+
+        else:
+            print("\nCounty Already Exists")
+            print("Exiting back to main application")
+
+    else:
+        print("\nState does not exist, cannot enter into database")
+        print("Exiting back to main application")
+
+
 def run():
     print("\nEnter one of the following commands to continue:")
     print("(1) Add new Covid Cases to County\n"
-          "(2) Search County Cases\n"
-          "(3) Add new Covid Deaths to County\n"
-          "(4) Search County Deaths\n"
+          "(2) Search County or State Cases\n"
+          "(3) Search County or State Deaths\n"
+          "(4) Add new County\n"
           "(5) Get Covid Cases vs Population Density for State\n"
           "(6) Get Covid Cases vs Mask Usage for County\n"
           "(7) Get County Id\n"
           "(8) Show Quick Reference Table\n"
           "(9) Display Full Table\n"
-          "(10) Exit Application")
+          "(10) Delete Records\n"
+          "(11) Exit Application")
     case = int(input("Enter the number you wish to navigate to: "))
 
     if case == 1:
@@ -424,13 +565,23 @@ def run():
         run()
 
     elif case == 2:
-        getCountyCases()
+        countyOrState = input("Would you like to search for County or State Cases (c/s): ")
+        if countyOrState == "c":
+            getCountyCases()
+        else:
+            getStateCases()
         run()
 
     elif case == 3:
+        countyOrState = input("Would you like to search for County or State Deaths (c/s): ")
+        if countyOrState == "c":
+            getCountyDeaths()
+        else:
+            getStateDeaths()
         run()
 
     elif case == 4:
+        addCounty()
         run()
 
     elif case == 5:
@@ -450,9 +601,13 @@ def run():
         run()
 
     elif case == 9:
+        returnFullTable()
         run()
 
     elif case == 10:
+        run()
+
+    elif case == 11:
         print("Thanks for using the application!\n")
         print("\nExiting.......\n")
         exit(0)
@@ -464,33 +619,3 @@ def run():
 print("\nWelcome to the Covid Mask Use DB Application\n")
 run()
 
-'''
-def addCounty():
-    file = []
-    print("\nEnter the following values to add a new student to the database\n")
-    #countyid = input("Enter CountyId: ")
-    county = input("Enter County Name: ")
-    state = input("Enter State Name: ")
-
-    cases = input("Enter COVID Cases: ")
-    confCases = input("Enter Confirmed COVID Cases: ")
-    probCases = input("Enter Probable COVID Cases: ")
-    deaths = input("Enter Student Address: ")
-    confDeaths = input("Enter Confirmed COVID Deaths: ")
-    probDeaths = input("Enter Enter Probable COVID Deaths: ")
-    never = input("Enter Never: ")
-    rarely = input("Enter Rarely: ")
-    sometimes = input("Enter Sometimes: ")
-    always = input("Enter Always: ")
-'''
-'''
-    file.append((county, state, cases, confCases, probCases, deaths, confDeaths, probDeaths, never, rarely, sometimes, always))
-    cursor.execute("INSERT INTO state(StateName) VALUES (%s)", state)
-    cursor.execute("INSERT INTO countystate(County, State) VALUES (%s, %s)", (county, state))
-    cursor.execute("INSERT INTO maskuse(CountyId, Never, Rarely, Sometimes, Frequently, Always) VALUES (%s, %s, %s)", (countyid, county, state))
-    cursor.execute("INSERT INTO countycases(CountyId, County, State) VALUES (%s, %s, %s)", (countyid, county, state))
-    cursor.execute("INSERT INTO countydeaths(CountyId, County, State) VALUES (%s, %s, %s)", (countyid, county, state))
-    db.commit()
-
-    print(file);
-'''
