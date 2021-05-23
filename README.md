@@ -1,30 +1,14 @@
 # 408Final
 Repository for the Covid Mask Usage Database Application
 
-## Requirements
-Will need to have flask installed to run application
+Contributors: Jack McGrath, Joaquin Valencia 
 
-```bash
-pip install flask
-```
+Packages used:
+Pandas
+mysql
+sqlalchemy
 
-Next you'll need to compile the application
-
-```bash
-python3 main.py
-```
-
-Set your enivornment variables in shell
-
-```bash
-export FLASK_APP=main
-export FLASK_ENV=developement
-```
-
-Running the environment
-
-```bash
-flask run
-```
-
-By default the application will run here: http://127.0.0.1:5000/
+Running the application:
+The application assumes you already have a MySQL database running.
+It will prompt you for the necessary information to connect to that database, then automatically populate it.
+Once this is done the application is ready to go and will automatically boot up

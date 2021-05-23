@@ -1,22 +1,27 @@
-import flask
-import csv
 from sqlalchemy import create_engine
 import pandas as p
 import mysql.connector
+
+
+#initializing database connection
+print("\nPlease enter the following information to initialize your Database\n")
+MYSQL_PASSWORD = input("MySQL password: ")
+MYSQL_DATABASE = input("MySQL database: ")
+MYSQL_PORT = input("MySQL port: ")
+MYSQL_USER = 'root'
+MYSQL_HOST = 'localhost'
+
+
+print("Initializing Database Connection........")
+
 
 # Connection to MySql database CovidMaskUsage
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="chapman408",
-    database="CovidMaskUsage"
+    password=MYSQL_PASSWORD,
+    database=MYSQL_DATABASE
 )
-
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'chapman408'
-MYSQL_HOST = 'localhost'
-MYSQL_DATABASE = 'CovidMaskUsage'
-MYSQL_PORT = '3306'
 
 engine = create_engine(
     'mysql+mysqlconnector://' + MYSQL_USER + ':' + MYSQL_PASSWORD + '@' + MYSQL_HOST + ':' + MYSQL_PORT + '/' + MYSQL_DATABASE,
@@ -25,142 +30,172 @@ engine = create_engine(
 cursor = db.cursor()
 
 
-# quickreference = '''
-# CREATE TABLE quickreference
-# (
-#     CountyId INTEGER NOT NULL,
-#     County VARCHAR(40) NOT NULL,
-#     State VARCHAR(40) NOT NULL,
-#     isDeleted INTEGER DEFAULT 0
-# );
-# '''
-#
-# cursor.execute(quickreference)
-# db.commit()
-#
-# state = '''
-# CREATE TABLE state
-# (
-#     StateName VARCHAR(40) NOT NULL PRIMARY KEY ,
-#     Population INTEGER,
-#     PopulationDensity REAL,
-#     isDeleted INTEGER DEFAULT 0
-# );
-# '''
-#
-# cursor.execute(state)
-# db.commit()
-#
-# countyState = '''
-# CREATE TABLE countystate
-# (
-#     CountyId INTEGER NOT NULL PRIMARY KEY,
-#     County VARCHAR(40) NOT NULL,
-#     State VARCHAR(40) NOT NULL,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(State) REFERENCES state(StateName)
-# );
-# '''
-#
-# cursor.execute(countyState)
-# db.commit()
-#
-# maskuse = '''
-# CREATE TABLE maskuse
-# (
-#     CountyId INTEGER NOT NULL,
-#     Never REAL,
-#     Rarely REAL,
-#     Sometimes REAL,
-#     Frequently REAL,
-#     Always REAL,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
-# );
-# '''
-#
-# cursor.execute(maskuse)
-# db.commit()
-#
-# countycases = '''
-# CREATE TABLE countycases
-# (
-#     CountyId INTEGER NOT NULL,
-#     Cases INTEGER,
-#     ConfirmedCases INTEGER,
-#     ProbableCases INTEGER,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
-# );
-# '''
-#
-# cursor.execute(countycases)
-# db.commit()
-#
-# countydeaths = '''
-# CREATE TABLE countydeaths
-# (
-#     CountyId INTEGER NOT NULL,
-#     Deaths INTEGER,
-#     ConfirmedDeaths INTEGER,
-#     ProbableDeaths INTEGER,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
-# );
-# '''
-# cursor.execute(countydeaths)
-# db.commit()
-#
-# statecases = '''
-# CREATE TABLE statecases
-# (
-#     State VARCHAR(40) NOT NULL,
-#     Cases INTEGER,
-#     ConfirmedCases INTEGER,
-#     ProbableCases INTEGER,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(State) REFERENCES state(StateName)
-# );
-# '''
-#
-# cursor.execute(statecases)
-# db.commit()
-#
-# statedeaths = '''
-# CREATE TABLE statedeaths
-# (
-#     State VARCHAR(40) NOT NULL,
-#     Deaths INTEGER,
-#     ConfirmedDeaths INTEGER,
-#     ProbableDeaths INTEGER,
-#     isDeleted INTEGER DEFAULT 0,
-#     FOREIGN KEY(State) REFERENCES state(StateName)
-# );
-# '''
-#
-# cursor.execute(statedeaths)
-# db.commit()
-#
-# table1 = p.read_csv('../csv/state.csv')
-# table1.to_sql(name='state', con=engine, if_exists='append', index=False)
-#
-# table2 = p.read_csv('../csv/countystate.csv')
-# table2.to_sql(name='countystate', con=engine, if_exists='append', index=False)
-#
-# table3 = p.read_csv('../csv/maskuse.csv')
-# table3.to_sql(name='maskuse', con=engine, if_exists='append', index=False)
-#
-# table4 = p.read_csv('../csv/countycases.csv')
-# table4.to_sql(name='countycases', con=engine, if_exists='append', index=False)
-#
-# table5 = p.read_csv('../csv/countydeaths.csv')
-# table5.to_sql(name='countydeaths', con=engine, if_exists='append', index=False)
-#
-# table6 = p.read_csv('../csv/statecases.csv')
-# table6.to_sql(name='statecases', con=engine, if_exists='append', index=False)
-#
-# table7 = p.read_csv('../csv/statedeaths.csv')
-# table7.to_sql(name='statedeaths', con=engine, if_exists='append', index=False)
+def populateDatabase():
+    dropMask = "DROP TABLE IF EXISTS maskuse"
+    cursor.execute(dropMask)
+    db.commit()
+
+    dropCC = "DROP TABLE IF EXISTS countycases"
+    cursor.execute(dropCC)
+    db.commit()
+
+    dropCD = "DROP TABLE IF EXISTS countydeaths"
+    cursor.execute(dropCD)
+    db.commit()
+
+    dropSC = "DROP TABLE IF EXISTS statecases"
+    cursor.execute(dropSC)
+    db.commit()
+
+    dropSD = "DROP TABLE IF EXISTS statedeaths"
+    cursor.execute(dropSD)
+    db.commit()
+
+    dropCS = "DROP TABLE IF EXISTS countystate"
+    cursor.execute(dropCS)
+    db.commit()
+
+    dropState = "DROP TABLE IF EXISTS state"
+    cursor.execute(dropState)
+    db.commit()
+
+    quickreference = '''
+    DROP TABLE IF EXISTS quickreference;
+    CREATE TABLE quickreference
+    (
+        CountyId INTEGER NOT NULL,
+        County VARCHAR(40) NOT NULL,
+        State VARCHAR(40) NOT NULL,
+        isDeleted INTEGER DEFAULT 0
+    );
+    '''
+
+    cursor.execute(quickreference, multi=True)
+    db.commit()
+
+    state = '''
+    CREATE TABLE state
+    (
+        StateName VARCHAR(40) NOT NULL PRIMARY KEY ,
+        Population INTEGER,
+        PopulationDensity REAL,
+        isDeleted INTEGER DEFAULT 0
+    );
+    '''
+
+    cursor.execute(state)
+    db.commit()
+
+    countyState = '''
+    CREATE TABLE countystate
+    (
+        CountyId INTEGER NOT NULL PRIMARY KEY,
+        County VARCHAR(40) NOT NULL,
+        State VARCHAR(40) NOT NULL,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(State) REFERENCES state(StateName)
+    );
+    '''
+
+    cursor.execute(countyState)
+    db.commit()
+
+    maskuse = '''
+    CREATE TABLE maskuse
+    (
+        CountyId INTEGER NOT NULL,
+        Never REAL,
+        Rarely REAL,
+        Sometimes REAL,
+        Frequently REAL,
+        Always REAL,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+    );
+    '''
+
+    cursor.execute(maskuse)
+    db.commit()
+
+    countycases = '''
+    CREATE TABLE countycases
+    (
+        CountyId INTEGER NOT NULL,
+        Cases INTEGER,
+        ConfirmedCases INTEGER,
+        ProbableCases INTEGER,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+    );
+    '''
+
+    cursor.execute(countycases)
+    db.commit()
+
+    countydeaths = '''
+    CREATE TABLE countydeaths
+    (
+        CountyId INTEGER NOT NULL,
+        Deaths INTEGER,
+        ConfirmedDeaths INTEGER,
+        ProbableDeaths INTEGER,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(CountyId) REFERENCES countystate(CountyId)
+    );
+    '''
+    cursor.execute(countydeaths)
+    db.commit()
+
+    statecases = '''
+    CREATE TABLE statecases
+    (
+        State VARCHAR(40) NOT NULL,
+        Cases INTEGER,
+        ConfirmedCases INTEGER,
+        ProbableCases INTEGER,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(State) REFERENCES state(StateName)
+    );
+    '''
+
+    cursor.execute(statecases)
+    db.commit()
+
+    statedeaths = '''
+    CREATE TABLE statedeaths
+    (
+        State VARCHAR(40) NOT NULL,
+        Deaths INTEGER,
+        ConfirmedDeaths INTEGER,
+        ProbableDeaths INTEGER,
+        isDeleted INTEGER DEFAULT 0,
+        FOREIGN KEY(State) REFERENCES state(StateName)
+    );
+    '''
+
+    cursor.execute(statedeaths)
+    db.commit()
+
+    table1 = p.read_csv('../csv/state.csv')
+    table1.to_sql(name='state', con=engine, if_exists='append', index=False)
+
+    table2 = p.read_csv('../csv/countystate.csv')
+    table2.to_sql(name='countystate', con=engine, if_exists='append', index=False)
+
+    table3 = p.read_csv('../csv/maskuse.csv')
+    table3.to_sql(name='maskuse', con=engine, if_exists='append', index=False)
+
+    table4 = p.read_csv('../csv/countycases.csv')
+    table4.to_sql(name='countycases', con=engine, if_exists='append', index=False)
+
+    table5 = p.read_csv('../csv/countydeaths.csv')
+    table5.to_sql(name='countydeaths', con=engine, if_exists='append', index=False)
+
+    table6 = p.read_csv('../csv/statecases.csv')
+    table6.to_sql(name='statecases', con=engine, if_exists='append', index=False)
+
+    table7 = p.read_csv('../csv/statedeaths.csv')
+    table7.to_sql(name='statedeaths', con=engine, if_exists='append', index=False)
 
 
 def getAllCountyState():
@@ -169,12 +204,26 @@ def getAllCountyState():
     frame = p.DataFrame(data, columns=['CountyId', 'County', 'State', 'isDeleted'])
     print(frame)
 
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
+
 
 def getAllState():
     cursor.execute('SELECT * FROM state')
     data = cursor.fetchall()
     frame = p.DataFrame(data, columns=['State', 'Population', 'PopulationDensity', 'isDeleted'])
     print(frame)
+
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
 
 
 def getAllMaskUse():
@@ -183,12 +232,26 @@ def getAllMaskUse():
     frame = p.DataFrame(data, columns=['CountyId', 'Never', 'Rarely', 'Sometimes', 'Frequently', 'Always', 'isDeleted'])
     print(frame)
 
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
+
 
 def getAllCountyCases():
     cursor.execute('SELECT * FROM countycases')
     data = cursor.fetchall()
     frame = p.DataFrame(data, columns=['CountyId', 'Cases', 'ConfirmedCases', 'ProbableCases', 'isDeleted'])
     print(frame)
+
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
 
 
 def getAllCountyDeaths():
@@ -197,6 +260,13 @@ def getAllCountyDeaths():
     frame = p.DataFrame(data, columns=['CountyId', 'Deaths', 'ConfirmedDeaths', 'ProbableDeaths', 'isDeleted'])
     print(frame)
 
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
+
 
 def getAllStateCases():
     cursor.execute('SELECT * FROM statecases')
@@ -204,12 +274,26 @@ def getAllStateCases():
     frame = p.DataFrame(data, columns=['State', 'Cases', 'ConfirmedCases', 'ProbableCases', 'isDeleted'])
     print(frame)
 
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
+
 
 def getAllStateDeaths():
     cursor.execute('SELECT * FROM statedeaths')
     data = cursor.fetchall()
     frame = p.DataFrame(data, columns=['State', 'Deaths', 'ConfirmedDeaths', 'ProbableDeaths', 'isDeleted'])
     print(frame)
+
+    csvReq = input("Would you like this information as a csv file(y/n): ")
+    if csvReq == 'y':
+        fileName = input("Enter the csv file you would like to write to: ")
+        frame.to_csv(fileName, index=False)
+    else:
+        print("\nReturning to Application..........\n")
 
 
 def returnFullTable():
@@ -250,21 +334,41 @@ def returnFullTable():
 
 def deleteCounty():
     countyId = input("To delete County please enter their County ID: ")
+    cursor.execute("START TRANSACTION;")
     cursor.execute("UPDATE countystate SET isDeleted = 1 WHERE CountyId = '" + countyId + "';")
     cursor.execute("UPDATE maskuse SET isDeleted = 1 WHERE CountyId = '" + countyId + "';")
     cursor.execute("UPDATE countycases SET isDeleted = 1 WHERE CountyId = '" + countyId + "';")
     cursor.execute("UPDATE countydeaths SET isDeleted = 1 WHERE CountyId = '" + countyId + "';")
     db.commit()
-    print("\nDeleting County.........\n")
+
+    rollback = input("Are you sure you want to make these deletions(y/n): ")
+    if rollback == 'n':
+        cursor.execute("ROLLBACK;")
+        db.commit()
+        print("\nChanges reverted.......\n")
+    else:
+        cursor.execute("COMMIT;")
+        db.commit()
+        print("\nDeleting County.........\n")
 
 
 def deleteState():
     state = input("To delete a State please enter the State name: ")
+    cursor.execute("START TRANSACTION;")
     cursor.execute("UPDATE state SET isDeleted = 1 WHERE StateName = '" + state + "';")
     cursor.execute("UPDATE statecases SET isDeleted = 1 WHERE State = '" + state + "';")
     cursor.execute("UPDATE statedeaths SET isDeleted = 1 WHERE State = '" + state + "';")
     db.commit()
-    print("\nDeleting State.........\n")
+
+    rollback = input("Are you sure you want to make these deletions(y/n): ")
+    if rollback == 'n':
+        cursor.execute("ROLLBACK;")
+        db.commit()
+        print("\nChanges reverted.......\n")
+    else:
+        cursor.execute("COMMIT;")
+        db.commit()
+        print("\nDeleting State.........\n")
 
 
 def cleanOutput(x):
@@ -519,7 +623,8 @@ def addCounty():
     cState = input("What state is the county in: ")
     cursor.execute("SELECT * from state WHERE StateName = '" + cState + "';")
     if cursor.fetchall():
-        cursor.execute("SELECT CountyId from countyState WHERE County = '" + newCounty + "' and State = '" + cState + "';")
+        cursor.execute(
+            "SELECT CountyId from countyState WHERE County = '" + newCounty + "' and State = '" + cState + "';")
         countyId = cursor.fetchall()
         if cleanOutput(countyId) == "":
             cursor.execute("SELECT CountyId from countyState WHERE CountyId = (SELECT max(CountyId) FROM countyState);")
@@ -527,7 +632,8 @@ def addCounty():
             cleanId = cleanOutput(inId)
             newId = str(int(cleanId) + 2)
 
-            cursor.execute("INSERT INTO countystate (CountyId, County, State) VALUES ('" + newId + "', '" + newCounty + "', '" + cState + "');")
+            cursor.execute(
+                "INSERT INTO countystate (CountyId, County, State) VALUES ('" + newId + "', '" + newCounty + "', '" + cState + "');")
             db.commit()
 
             print("\nNew county: " + newCounty + " County, " + cState + " has been added to countystate Table")
@@ -545,7 +651,28 @@ def addCounty():
         print("Exiting back to main application")
 
 
+def getStateInfo():
+    state = input("Enter the state you want to look up: ")
+    cursor.execute(
+        "SELECT COUNT(county) as cCount FROM state JOIN countystate c on state.StateName = c.State JOIN maskuse m on c.CountyId = m.CountyId WHERE state = '" + state + "';")
+    numCounties = cursor.fetchall()
+    cleanNum = cleanOutput(numCounties)
+
+    print("The number of counties in " + state + " is " + cleanNum)
+    avgMask = input("Would you like to know the average mask use for " + state + " (y/n): ")
+    if avgMask == 'y':
+        cursor.execute(
+            "SELECT AVG(always) as cCount FROM state JOIN countystate c on state.StateName = c.State JOIN maskuse m on c.CountyId = m.CountyId WHERE state = '" + state + "';")
+        maskUse = cleanOutput(cursor.fetchall())
+        percent = str(float(maskUse) * 100)
+
+        print("\nFor " + state + ", " + percent + " percent of people always wear masks\n")
+    else:
+        print("\nReturning to application..........")
+
+
 def run():
+    populateDatabase()
     print("\nEnter one of the following commands to continue:")
     print("(1) Add new Covid Cases to County\n"
           "(2) Search County or State Cases\n"
@@ -557,7 +684,8 @@ def run():
           "(8) Show Quick Reference Table\n"
           "(9) Display Full Table\n"
           "(10) Delete Records\n"
-          "(11) Exit Application")
+          "(11) Get Counties per State\n"
+          "(12) Exit Application")
     case = int(input("Enter the number you wish to navigate to: "))
 
     if case == 1:
@@ -605,9 +733,18 @@ def run():
         run()
 
     elif case == 10:
+        countyOrState = input("Would you like to delete County or State records (c/s): ")
+        if countyOrState == "c":
+            deleteCounty()
+        else:
+            deleteState()
         run()
 
     elif case == 11:
+        getStateInfo()
+        run()
+
+    elif case == 12:
         print("Thanks for using the application!\n")
         print("\nExiting.......\n")
         exit(0)
@@ -618,4 +755,3 @@ def run():
 
 print("\nWelcome to the Covid Mask Use DB Application\n")
 run()
-
