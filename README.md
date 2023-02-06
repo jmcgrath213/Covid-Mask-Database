@@ -1,4 +1,4 @@
-# Repository for the Covid Mask Usage Database Application
+# Covid Mask Usage Database Application
 
 Contributors: Jack McGrath, Joaquin Valencia 
 
